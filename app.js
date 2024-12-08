@@ -6,7 +6,7 @@ const Listing = require("./models/listing.js")
 const path = require("path");
 const methodOverride = require("method-override");
 const ejsmate = require("ejs-mate");
-
+// New
 main()
     .then(() => {
         console.log("Connected to DB");
