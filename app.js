@@ -8,6 +8,7 @@ const methodOverride = require("method-override");
 const ejsmate = require("ejs-mate");
 const wrapAsync = require("./util/wrapAsync.js");
 const ExpressError = require("./util/ExpressError.js");
+const {listingschema} = require("./schema.js");
 main()
     .then(() => {
         console.log("Connected to DB");
@@ -28,6 +29,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get("/", (req, res) => {
     res.redirect("/listings");
 })
+let validateListing = (req,res,next)=>{
+    let {error} = listingschema.validate(req.body);
+    if (result.error) {
+        throw new ExpressError (400, result.err);
+    }
+    if(error){
+        throw new ExpressError( 400, error);
+    }else{
+        next();
+    }
+}
 // Index Route
 app.get("/listings", wrapAsync(async (req, res) => {
     const allListings = await Listing.find({})
@@ -46,12 +58,10 @@ app.get("/listings/:id", wrapAsync(async (req, res) => {
 }))
 
 // Create Route
-app.post("/listings", wrapAsync(async (req, res) => {
+app.post("/listings",validateListing, wrapAsync(async (req, res) => {
     //let {title, discription, image, price,country, location} = req.body;
-    if(!req.body.listing){
-        throw new ExpressError(400, "Send Valid Data For Listing.")
-    }
     const newListing = Listing(req.body.listing);
+
     await newListing.save();
     res.redirect("/listings");
 }))
@@ -62,7 +72,7 @@ app.get("/listings/:id/edit", wrapAsync(async (req, res) => {
     res.render("listings/edit.ejs", { listing });
 }))
 // Update Route
-app.put("/listings/:id", wrapAsync(async (req, res) => {
+app.put("/listings/:id",validateListing, wrapAsync(async (req, res) => {
     let { id } = req.params;
     await Listing.findByIdAndUpdate(id, { ...req.body.listing });
     res.redirect("/listings");
