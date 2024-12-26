@@ -9,6 +9,7 @@ const ejsmate = require("ejs-mate");
 const wrapAsync = require("./util/wrapAsync.js");
 const ExpressError = require("./util/ExpressError.js");
 const {listingschema} = require("./schema.js");
+const Review = require("./models/reviews.js");
 main()
     .then(() => {
         console.log("Connected to DB");
@@ -32,6 +33,7 @@ app.get("/", (req, res) => {
 let validateListing = (req,res,next)=>{
     let {error} = listingschema.validate(req.body);
     if (result.error) {
+        console.log(error)
         throw new ExpressError (400, result.err);
     }
     if(error){
@@ -58,7 +60,7 @@ app.get("/listings/:id", wrapAsync(async (req, res) => {
 }))
 
 // Create Route
-app.post("/listings",validateListing, wrapAsync(async (req, res) => {
+app.post("/listings", wrapAsync(async (req, res) => {
     //let {title, discription, image, price,country, location} = req.body;
     const newListing = Listing(req.body.listing);
 
@@ -72,7 +74,7 @@ app.get("/listings/:id/edit", wrapAsync(async (req, res) => {
     res.render("listings/edit.ejs", { listing });
 }))
 // Update Route
-app.put("/listings/:id",validateListing, wrapAsync(async (req, res) => {
+app.put("/listings/:id", wrapAsync(async (req, res) => {
     let { id } = req.params;
     await Listing.findByIdAndUpdate(id, { ...req.body.listing });
     res.redirect("/listings");
@@ -83,6 +85,19 @@ app.delete("/listings/:id", wrapAsync(async (req, res) => {
     console.log(deleted);
     res.redirect("/listings");
 }))
+
+// reviews
+app.post("/listings/:id/reviews", async (req,res)=>{
+    let listing = await Listing.findById(req.params.id);
+    let newReview = new Review(req.body.review);
+
+    listing.reviews.push(newReview);
+    await newReview.save();
+    await listing.save();
+
+    console.log("New Review Saved");
+    res.redirect("/listings");
+})
 // app.get("/testListing", async (req, res) => {
 //     let samplelisting = new Listing({
 //         title: "My new Villa",
