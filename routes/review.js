@@ -1,6 +1,20 @@
 const express = require("express");
 const Router = express.Router();
+const ExpressError = require("../util/ExpressError.js");
 
+
+let validateReview = (req,res,next)=>{
+    let {error} = reviewSchema.validate(req.body);
+    if (error) {
+        console.log(error)
+        throw new ExpressError (400, result.err);
+    }
+    if(error){
+        throw new ExpressError( 400, error);
+    }else{
+        next();
+    }
+}
 
 // reviews
 Router.post("/:id/reviews",validateReview ,wrapAsync(async (req,res)=>{
