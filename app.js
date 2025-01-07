@@ -9,6 +9,7 @@ const ExpressError = require("./util/ExpressError.js");
 const listings = require("./routes/listing.js");
 const reviews = require("./models/reviews.js");
 const session = require("express-session");
+const flash = require("connect-flash");
 
 
 main()
@@ -42,12 +43,18 @@ const sessionOptions ={
 };
 
 app.use(session(sessionOptions));
+app.use(flash());
 
 
 app.get("/", (req, res) => {
     res.redirect("/listings");
 })
 
+app.use((req,res,next)=>{
+    res.locals.success = req.flash("success");
+    res.locals.error = req.flash("error");
+    next();
+})
 app.use("/listings", listings);
 app.use("/listings/:id/reviews", reviews);
 
