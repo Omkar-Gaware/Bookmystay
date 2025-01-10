@@ -20,23 +20,35 @@ let validateReview = (req, res, next) => {
 }
 
 // reviews
-Router.post("/", validateReview, wrapAsync(async (req, res) => {
+Router.post("/:id/reviews",validateReview ,wrapAsync(async (req,res)=>{
+    if(!req.isAuthenticated()){
+        req.session.redirectUrl = req.originalUrl;
+        req.flash("error","You must LoggedIn First.");
+        return res.redirect("/login");
+    }
     let listing = await Listing.findById(req.params.id);
     let newReview = new Review(req.body.review);
 
     listing.reviews.push(newReview);
     await newReview.save();
     await listing.save();
-    req.flash("success", "New Review Created");
+
+    console.log("New Review Saved");
+    req.flash("success","Review Added Sucessfully.")
     res.redirect(`/listings/${listing._id}`);
 }))
 
 // Delete Review Route
-Router.delete("/:reviewId", async (req, res) => {
-    let { id, reviewId } = req.params;
-    await Listing.findByIdAndUpdate(id, { $pull: { reviews: reviewId } });
+Router.delete("/:id/reviews/:reviewId",async(req,res)=>{
+    if(!req.isAuthenticated()){
+        req.session.redirectUrl = req.originalUrl;
+        req.flash("error","You must LoggedIn First.");
+        return res.redirect("/login");
+    }
+    let {id, reviewId} = req.params;
+    await Listing.findByIdAndUpdate(id, {$pull: {reviews : reviewId}});
     await Review.findByIdAndDelete(reviewId)
-    req.flash("success", "New Review Deleted");
+    req.flash("success","Review Deleted Sucessfully.")
     res.redirect(`/listings/${id}`)
 })
 

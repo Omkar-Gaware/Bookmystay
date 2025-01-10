@@ -3,7 +3,6 @@ const app = express();
 const mongoose = require("mongoose");
 const Mongo_Url = "mongodb://127.0.0.1:27017/wanderlust";
 const path = require("path");
-const wrapAsync = require("./util/wrapAsync.js");
 const methodOverride = require("method-override");
 const ejsmate = require("ejs-mate");
 const ExpressError = require("./util/ExpressError.js");
@@ -62,11 +61,12 @@ app.get("/", (req, res) => {
 app.use((req, res, next) => {
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");
+    res.locals.curruser = req.user;
     next();
 })
 
 app.use("/listings", listingsRouter);
-app.use("/listings/:id/reviews", reviewsRouter);
+app.use("/listings", reviewsRouter);
 app.use("/", userRouter);
 
 

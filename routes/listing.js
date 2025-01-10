@@ -1,10 +1,10 @@
 const express = require("express");
 const Router = express.Router();
 const wrapAsync = require("../util/wrapAsync.js");
-const {listingschema, reviewSchema} = require("../schema.js");
+const {listingschema} = require("../schema.js");
 const ExpressError = require("../util/ExpressError.js");
 const Listing = require("../models/listing.js")
-const Review = require("../models/reviews.js");
+
 
 let validateListing = (req,res,next)=>{
     let {error} = listingschema.validate(req.body);
@@ -18,20 +18,6 @@ let validateListing = (req,res,next)=>{
         next();
     }
 }
-let validateReview = (req,res,next)=>{
-    let {error} = reviewSchema.validate(req.body);
-    if (error) {
-        console.log(error)
-        throw new ExpressError (400, result.err);
-    }
-    if(error){
-        throw new ExpressError( 400, error);
-    }else{
-        next();
-    }
-}
-
-
 // Index Route
 Router.get("/", wrapAsync(async (req, res) => {
     const allListings = await Listing.find({})
@@ -39,11 +25,17 @@ Router.get("/", wrapAsync(async (req, res) => {
 }))
 // New Route
 Router.get("/new", (req, res) => {
+    if(!req.isAuthenticated()){
+        //redirectUrl
+        req.session.redirectUrl = req.originalUrl;
+        req.flash("error","You must LoggedIn First.");
+        return res.redirect("/login");
+    }
     res.render("listings/new.ejs");
 })
 
 //Show Route
-Router.get("/:id", wrapAsync(async (req, res) => {
+Router.get("/:id",  wrapAsync(async (req, res) => {
     let { id } = req.params;
     const listing = await Listing.findById(id).populate("reviews");
     if (!listing) {
@@ -56,14 +48,24 @@ Router.get("/:id", wrapAsync(async (req, res) => {
 // Create Route
 Router.post("/", validateListing, wrapAsync(async (req, res) => {
     //let {title, discription, image, price,country, location} = req.body;
+    if(!req.isAuthenticated()){
+        req.session.redirectUrl = req.originalUrl;
+        req.flash("error","You must LoggedIn First.");
+        return res.redirect("/login");
+    }
     const newListing = Listing(req.body.listing);
 
     await newListing.save();
     req.flash("success", "New Listing Created");
     res.redirect("/listings");
 }))
-// 
+// Edit
 Router.get("/:id/edit", wrapAsync(async (req, res) => {
+    if(!req.isAuthenticated()){
+        req.session.redirectUrl = req.originalUrl;
+        req.flash("error","You must LoggedIn First.");
+        return res.redirect("/login");
+    }
     let { id } = req.params;
     const listing = await Listing.findById(id);
     if (!listing) {
@@ -74,40 +76,27 @@ Router.get("/:id/edit", wrapAsync(async (req, res) => {
 }))
 // Update Route
 Router.put("/:id", validateListing, wrapAsync(async (req, res) => {
+    if(!req.isAuthenticated()){
+        req.session.redirectUrl = req.originalUrl;
+        req.flash("error","You must LoggedIn First.");
+        return res.redirect("/login");
+    }
     let { id } = req.params;
     await Listing.findByIdAndUpdate(id, { ...req.body.listing });
     req.flash("success", "Edit Sucessfully");
     res.redirect("/listings");
 }))
 Router.delete("/:id", wrapAsync(async (req, res) => {
+    if(!req.isAuthenticated()){
+        req.session.redirectUrl = req.originalUrl;
+        req.flash("error","You must LoggedIn First.");
+        return res.redirect("/login");
+    }
     let { id } = req.params;
     let deleted = await Listing.findByIdAndDelete(id);
     console.log(deleted);
     req.flash("success", "Delete Sucessfully");
     res.redirect("/listings");
 }))
-
-
-// reviews
-Router.post("/:id/reviews",validateReview ,wrapAsync(async (req,res)=>{
-    let listing = await Listing.findById(req.params.id);
-    let newReview = new Review(req.body.review);
-
-    listing.reviews.push(newReview);
-    await newReview.save();
-    await listing.save();
-
-    console.log("New Review Saved");
-    res.redirect(`/listings/${listing._id}`);
-}))
-
-// Delete Review Route
-Router.delete("/:id/reviews/:reviewId",async(req,res)=>{
-    let {id, reviewId} = req.params;
-    await Listing.findByIdAndUpdate(id, {$pull: {reviews : reviewId}});
-    await Review.findByIdAndDelete(reviewId)
-
-    res.redirect(`/listings/${id}`)
-})
 
 module.exports = Router;
