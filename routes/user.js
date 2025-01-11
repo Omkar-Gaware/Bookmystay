@@ -3,8 +3,13 @@ const Router = express.Router();
 const wrapAsync = require("../util/wrapAsync.js");
 const passport = require("passport");
 const User = require("../models/user.js");
-const {saveRedirectUrl} = require("../middleware.js");
 
+const saveRedirectUrl = (req,res,next)=>{
+    if (req.session.redirectUrl) {
+        res.locals.redirectUrl = req.session.redirectUrl;
+    }
+    next();
+}
 // SignUp
 Router.get("/signup", (req, res) => {
     res.render("Users/signup.ejs")
