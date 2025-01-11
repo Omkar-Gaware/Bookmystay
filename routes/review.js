@@ -5,6 +5,7 @@ const { reviewSchema } = require("../schema.js");
 const ExpressError = require("../util/ExpressError.js");
 const Listing = require("../models/listing.js")
 const Review = require("../models/reviews.js");
+const ReviewCont = require("../controller/listing.js");
 
 const isReviewAuthor = async (req, res, next) => {
     let { id, reviewId } = req.params;
@@ -48,17 +49,6 @@ Router.post("/:id/reviews",validateReview ,wrapAsync(async (req,res)=>{
 }))
 
 // Delete Review Route
-Router.delete("/:id/reviews/:reviewId",isReviewAuthor,async(req,res)=>{
-    if(!req.isAuthenticated()){
-        req.session.redirectUrl = req.originalUrl;
-        req.flash("error","You must LoggedIn First.");
-        return res.redirect("/login");
-    }
-    let {id, reviewId} = req.params;
-    await Listing.findByIdAndUpdate(id, {$pull: {reviews : reviewId}});
-    await Review.findByIdAndDelete(reviewId)
-    req.flash("success","Review Deleted Sucessfully.")
-    res.redirect(`/listings/${id}`)
-})
+Router.delete("/:id/reviews/:reviewId",isReviewAuthor,ReviewCont.destroy);
 
 module.exports = Router;
