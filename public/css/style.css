@@ -135,3 +135,11 @@ body {
   gap: 10%;
   margin-left: 14px;
 }
+
+/* Map  */
+#map { 
+  height: 400px;
+  width: 80vh;
+ }
+
+ 

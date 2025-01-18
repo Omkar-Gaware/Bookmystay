@@ -31,7 +31,9 @@ module.exports.renderEditForm = async (req, res) => {
       req.flash("error", "The listing you are requesting does not exits");
       return res.redirect("/listings");
     }
-    res.render("listings/edit.ejs", { listing });
+    let originalImg = listing.image.url;
+    originalImg=  originalImg.replace("/upload","/upload/w_250");
+    res.render("listings/edit.ejs", { listing,originalImg });
   };
   
   module.exports.editListing = async (req, res) => {
