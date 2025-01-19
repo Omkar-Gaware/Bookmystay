@@ -36,7 +36,6 @@ app.use(express.static(path.join(__dirname, "/public"))); //serve static files
 //connect database
 // const MONGO_URL = "mongodb://127.0.0.1:27017/homeheavens"; //use url of your database
 const DB_url = process.env.ATLAS_DB_URL;
-console.log(DB_url);
 main()
   .then(() => {
     console.log("connected to DB");
