@@ -5,9 +5,9 @@ const { isLoggedIn, isOwner, valiadteListing } = require("../middleware.js");
 const listingsController = require("../controllers/listings.js");
 
 //set up multer for multipart data handling
-const multer  = require('multer')
-const {storage} = require("../cloudConfig.js");
-const upload = multer({ storage })
+const multer = require("multer");
+const { storage } = require("../cloudConfig.js");
+const upload = multer({ storage });
 
 router
   .route("/")

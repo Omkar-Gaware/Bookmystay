@@ -3,7 +3,7 @@ const initData = require("./data.js");
 const Listing = require("../models/listing.js");
 
 //connect database
-const MONGO_URL = "mongodb://127.0.0.1:27017/DemoListings";
+const MONGO_URL = "mongodb://127.0.0.1:27017/FinalDemo";
 
 main()
   .then(() => {
