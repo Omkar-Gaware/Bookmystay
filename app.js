@@ -28,8 +28,8 @@ const { error } = require('console');
 
 app.use(methodOverride("_method"));
 app.use(express.urlencoded({ extended: true })); //to parse data
-app.set("view engine", "ejs"); //set view engine
 app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "ejs"); //set view engine
 app.engine("ejs", ejsMate); //set ejs engine
 app.use(express.static(path.join(__dirname, "/public"))); //serve static files
 
