@@ -11,4 +11,5 @@
 - **Real-Time Availability**: Accurate room availability and pricing updates.  
 - **Secure Payment System**: Transactions safeguarded with industry-grade encryption.  
 - **Responsive Design**: Fully optimized for mobile, tablet, and desktop devices.  
-- **Customer Reviews**: Trusted feedback to guide your decisions.  
+- **Customer Reviews**: Trusted feedback to guide your decisions.
+- 
